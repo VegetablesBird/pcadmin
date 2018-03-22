@@ -4,14 +4,38 @@
       <el-button><router-link to="/CustomDetail/0">新增分类</router-link></el-button>
     </div>
     <div class="tbBody">
-      <!--style="width: 100%" height="100%"-->
-      <el-table :data="dataList" border style="width: 100%" height="100%">
+      <el-table :data="custom" border style="width: 100%" height="100%">
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="栏目ID">
+                <span>{{ props.row.ID }}</span>
+              </el-form-item>
+              <el-form-item label="栏目名称">
+                <span>{{ props.row.customTypeName }}</span>
+              </el-form-item>
+              <el-form-item label="分类ID">
+                <span>{{ props.row.typeID }}</span>
+              </el-form-item>
+              <el-form-item label="分类层级">
+                <span>{{ props.row.typeLv }}</span>
+              </el-form-item>
+              <el-form-item label="显示">
+                <span>{{ props.row.showFlag }}</span>
+              </el-form-item>
+              <el-form-item label="排序号">
+                <span>{{ props.row.priority }}</span>
+              </el-form-item>
+              <el-form-item label="栏目Url">
+                <span>{{ props.row.customUrl }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
         <el-table-column prop="ID" label="ID" sortable width="80">
         </el-table-column>
-        <el-table-column prop="typeLv" label="栏目层级" width="100" :filters="[{text: 1, value: 1},{text: 2, value: 2}]" :filter-method="filterHandler">
+        <el-table-column prop="typeLv" label="分类层级" :filters="reExclusion(custom)" :filter-method="filterHandler" >
         </el-table-column>
-        <!--<el-table-column prop="fatherID" label="父级栏目ID" :filters="levelFilters" :filter-method="filterHandler">
-        </el-table-column>-->
         <el-table-column prop="customTypeName" label="栏目名">
         </el-table-column>
         <el-table-column prop="customUrl" label="栏目地址">
@@ -40,25 +64,48 @@
 </template>
 
 <script>
-  import { getCustomType } from '../../../service/getData'
+  import { mapState, mapActions } from 'vuex'
+
   export default {
     data () {
       return {
-        dataList: []
       }
     },
     mounted () {
-      getCustomType.then(res => {
-        this.dataList = JSON.parse(res.data)
-        console.log(res.data + "141")
-      })
+      // this.getCustom()
     },
     computed: {
+      ...mapState({
+        custom() {
+          return this.$store.state.custom.custom.filter(function(val){
+            return val.ID != 1
+          })
+        }
+      }),
     },
     methods: {
+      //通过vuex获取数据
+      // ...mapActions([
+      //   'getCustom'
+      // ]),
+
+      // 排重
+      reExclusion (dataArr) {
+        const self = this
+        const hash=[],arr=[];
+        dataArr.forEach(function(el) {
+          hash[el.typeLv]!=null
+          if(!hash[el.typeLv]){
+            arr.push({text: el.typeLv, value: el.typeLv})
+            hash[el.typeLv]=true
+          }
+        })
+        return arr
+      },
+
       filterHandler(value, row, column) {
         const property = column['property']
-        // return row[property] === value;
+        return row[property] === value;
       },
       handleEdit(index, row) {
         // console.log(index, row)
@@ -67,12 +114,7 @@
       handleDelete(index, row) {
         // console.log(index, row)
       },
-      filterData: function() {
-        const self = this
-        // return this.dataList.filter(function(val){
-        //   return val.fatherID == self.$route.params.typeID
-        // })
-      }
+      
     }
   }
 </script>
@@ -88,5 +130,20 @@
 }
 .tbBody{
   flex: 1;
+}
+
+
+/*展开行样式*/
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
 }
 </style>

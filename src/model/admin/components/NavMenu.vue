@@ -1,16 +1,15 @@
 <template>
   <div>
-    <label v-for="navMenu in navMenus" :key="navMenu.ID">  
-      <el-menu-item v-if="navMenu.children.length==0" :key="navMenu.ID" :index="`${navMenu.ID}`">
+    <label v-for="navMenu in navMenus" :key="navMenu.ID">
+      <el-submenu v-if="navMenu.children" :key="navMenu.ID" :data="navMenu" :index="`${navMenu.ID}`">
+        <template slot="title">
+          <span>{{navMenu.customTypeName}}</span>
+        </template>
+        <NavMenu :navMenus="navMenu.children"></NavMenu>
+      </el-submenu>
+      <el-menu-item v-else :key="navMenu.ID" :index="`${navMenu.ID}`">
         <router-link slot="title" :to="'/' + navMenu.customUrl">{{navMenu.customTypeName}}</router-link>
       </el-menu-item>
-      <el-submenu v-if="navMenu.children.length>0"  
-                  :key="navMenu.ID" :data="navMenu" :index="`${navMenu.ID}`">  
-        <template slot="title">
-          <span>{{navMenu.customTypeName}}</span>  
-        </template>  
-        <NavMenu :navMenus="navMenu.children"></NavMenu>  
-      </el-submenu>  
     </label>
   </div>
 </template>
@@ -24,6 +23,8 @@ export default {
     }
   },
   mounted () {
+  },
+  methods: {
   }
 }
 </script>
